@@ -785,3 +785,20 @@ button {
   margin-top: 0;
   color: #354055;
 }
+
+.cart-submit-row {
+  width: 90%;
+  margin: 25px auto 60px auto;
+  text-align: right;
+}
+
+.submit-all-btn {
+  background: #066bdc;
+  color: white;
+  border: none;
+  border-radius: 28px;
+  padding: 14px 34px;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}

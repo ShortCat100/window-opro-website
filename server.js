@@ -169,6 +169,54 @@ ${JSON.stringify(rows, null, 2)}
   }
 });
 
+app.post("/api/submit-cart", upload.array("designFiles"), async (req, res) => {
+  try {
+    const cart = JSON.parse(req.body.cart || "[]");
+
+    let emailBody = "New window cart submission\n\n";
+
+    cart.forEach((project, index) => {
+      emailBody += `PROJECT ${index + 1}\n`;
+      emailBody += `Quote: $${project.quote}\n`;
+      emailBody += `Tax: $${project.tax}\n`;
+      emailBody += `Total: $${project.total}\n`;
+      emailBody += `Discount Quote: $${project.discountQuote}\n`;
+      emailBody += `Promotion Code: ${project.promotionCode || "None"}\n\n`;
+
+      emailBody += "Rows:\n";
+      emailBody += JSON.stringify(project.rows, null, 2);
+      emailBody += "\n\n----------------------\n\n";
+    });
+
+    const attachments = req.files.map(file => ({
+      filename: file.originalname,
+      path: file.path
+    }));
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.zoho.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "admin-window@derivativeinsight.com",
+        pass: "Dhy2339003"
+      }
+    });
+
+    await transporter.sendMail({
+      from: "admin-window@derivativeinsight.com",
+      to: "admin-window@derivativeinsight.com",
+      subject: "New Window Cart Submission",
+      text: emailBody,
+      attachments: attachments
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

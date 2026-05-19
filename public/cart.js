@@ -133,3 +133,58 @@ function confirmDeleteProject(index) {
 
   loadCart();
 }
+
+document.addEventListener("change", function (event) {
+  if (event.target.id === "designFiles") {
+    const files = Array.from(event.target.files);
+    const fileNamesBox = document.getElementById("fileNames");
+
+    if (files.length === 0) {
+      fileNamesBox.innerText = "No files selected";
+    } else {
+      fileNamesBox.innerHTML = files
+        .map(file => `<div>${file.name}</div>`)
+        .join("");
+    }
+  }
+});
+
+function openSubmitDialog() {
+  document.getElementById("submitDialog").style.display = "flex";
+}
+
+function closeSubmitDialog() {
+  document.getElementById("submitDialog").style.display = "none";
+}
+
+async function submitProject() {
+  const cart = JSON.parse(localStorage.getItem("windowCart")) || [];
+
+  if (cart.length === 0) {
+    alert("No projects in cart.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("cart", JSON.stringify(cart));
+
+  const files = document.getElementById("designFiles").files;
+
+  for (let i = 0; i < files.length; i++) {
+    formData.append("designFiles", files[i]);
+  }
+
+  const response = await fetch("/api/submit-cart", {
+    method: "POST",
+    body: formData
+  });
+
+  if (response.ok) {
+    alert("All projects submitted successfully.");
+    localStorage.removeItem("windowCart");
+    closeSubmitDialog();
+    location.reload();
+  } else {
+    alert("Submission failed. Please contact us directly.");
+  }
+}
