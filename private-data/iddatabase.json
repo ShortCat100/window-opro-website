@@ -1,0 +1,13 @@
+{
+  "suppliers": {
+    "supplier 1": "apr2026a",
+    "supplier 2": "apr2026b",
+    "supplier 3": "apr2026c",
+    "supplier 4": "apr2026d"
+  },
+  "promotions": {
+    "newclient": 0.9,
+    "friend": 0.95,
+    "singleuser": 0.95
+  }
+}

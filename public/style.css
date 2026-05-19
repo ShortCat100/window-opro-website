@@ -1,0 +1,787 @@
+body {
+  font-family: Arial, sans-serif;
+  background: white;
+  margin: 0;
+  padding: 40px 25px;
+  text-align: center;
+}
+
+.login-area {
+  width: 700px;
+  margin: 40px auto 30px auto;
+  display: grid;
+  grid-template-columns: 220px 420px;
+  gap: 22px 25px;
+  align-items: center;
+}
+
+.login-area label {
+  text-align: right;
+  font-size: 22px;
+}
+
+.login-area input {
+  height: 38px;
+  font-size: 20px;
+}
+
+.login-area button {
+  grid-column: 2;
+  width: 180px;
+  margin: 0 auto;
+}
+
+#loginMessage {
+  grid-column: 1 / 3;
+  color: red;
+}
+
+input,
+select {
+  height: 32px;
+  border: 1px solid #b8bec8;
+  background: white;
+  font-size: 18px;
+  padding-left: 10px;
+  box-sizing: border-box;
+}
+
+button {
+  background: #9be36d;
+  border: 2px solid #4b8a35;
+  padding: 9px 32px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.order-table {
+  width: 100%;
+  margin: 35px auto 15px auto;
+  border-collapse: collapse;
+}
+
+.order-table th,
+.order-table td {
+  border: 1px solid #c6cbd3;
+  padding: 10px;
+  text-align: center;
+}
+
+.order-table th {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.order-table input,
+.order-table select {
+  width: 110px;
+}
+
+.evaluate-btn {
+  margin: 15px auto;
+}
+
+.quote-box {
+  width: 600px;
+  margin: 15px auto;
+  padding: 20px 35px;
+  border: 1px solid #c6cbd3;
+  display: grid;
+  grid-template-columns: 200px 250px 100px;
+  gap: 12px 15px;
+  align-items: center;
+  text-align: left;
+}
+
+.quote-box label {
+  font-size: 20px;
+}
+
+.quote-box input {
+  width: 250px;
+}
+
+.quote-box button {
+  padding: 7px 20px;
+}
+
+.quote-box label:nth-of-type(1),
+.quote-box label:nth-of-type(2),
+.quote-box label:nth-of-type(3),
+.quote-box label:nth-of-type(5) {
+  grid-column: 1;
+}
+
+.quote-box input:nth-of-type(1),
+.quote-box input:nth-of-type(2),
+.quote-box input:nth-of-type(3),
+.quote-box input:nth-of-type(5) {
+  grid-column: 2;
+}
+
+.quote-box label:nth-of-type(4) {
+  grid-column: 1;
+}
+
+.quote-box input:nth-of-type(4) {
+  grid-column: 2;
+}
+
+.quote-box button {
+  grid-column: 3;
+  grid-row: 4;
+}
+
+
+
+
+.upload-box {
+  width: 700px;
+  margin: 30px auto 60px auto;
+  text-align: left;
+  font-size: 20px;
+}
+
+.upload-row {
+  margin-top: 15px;
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.file-names {
+  min-height: 45px;
+  border: 1px solid #c6cbd3;
+  padding: 10px;
+  font-size: 16px;
+  background: white;
+}
+
+.submit-project-btn {
+  display: block;
+  margin: 25px auto 0 auto;
+}
+
+.dialog-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  justify-content: center;
+  align-items: center;
+}
+
+.dialog-box {
+  width: 600px;
+  background: white;
+  border: 2px solid #333;
+  padding: 30px;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 25px;
+}
+
+
+/* =========================
+   LOGIN PAGE GLASSUPPLY STYLE
+========================= */
+
+.login-page {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #ffffff;
+  color: #354055;
+  text-align: left;
+}
+
+.site-header {
+  height: 72px;
+  border-bottom: 1px solid #e4e4e4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 76px;
+  box-sizing: border-box;
+}
+
+.menu-icon {
+  font-size: 34px;
+  color: #066bdc;
+  font-weight: bold;
+}
+
+.brand-logo {
+  font-size: 28px;
+  letter-spacing: 1px;
+  color: #066bdc;
+  font-weight: 300;
+}
+
+.orange-text {
+  color: orange;
+  font-weight: 700;
+}
+
+.header-icons {
+  display: flex;
+  gap: 32px;
+  font-size: 28px;
+  color: #066bdc;
+  align-items: center;
+}
+
+.login-hero {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 70px;
+  padding: 70px 90px 85px 90px;
+  align-items: center;
+}
+
+.hero-left h1 {
+  font-size: 54px;
+  line-height: 1.15;
+  margin: 0 0 55px 0;
+  color: #354055;
+  font-weight: 800;
+}
+
+.hero-left h2 {
+  font-size: 30px;
+  line-height: 1.25;
+  margin-bottom: 32px;
+  color: #354055;
+  font-weight: 800;
+}
+
+.login-form {
+  width: 520px;
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 18px 18px;
+  align-items: center;
+}
+
+.login-form label {
+  font-size: 21px;
+  font-weight: 600;
+  color: #354055;
+}
+
+.login-form input {
+  height: 44px;
+  border: 1px solid #b8bec8;
+  font-size: 20px;
+  padding: 5px 12px;
+  box-sizing: border-box;
+}
+
+.login-form button {
+  grid-column: 1 / 3;
+  justify-self: start;
+  margin-top: 18px;
+  background: #066bdc;
+  color: white;
+  border: none;
+  border-radius: 28px;
+  padding: 14px 42px;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-form button::after {
+  content: "  ›";
+  font-size: 34px;
+  vertical-align: -2px;
+}
+
+#loginMessage {
+  grid-column: 1 / 3;
+  color: red;
+  font-size: 16px;
+}
+
+.hero-right {
+  display: flex;
+  justify-content: center;
+}
+
+.window-card {
+  width: 650px;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.window-frame {
+  width: 440px;
+  height: 280px;
+  border: 12px solid #6f7c8e;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: white;
+}
+
+.pane {
+  border-left: 5px solid #6f7c8e;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(174,213,235,0.4));
+}
+
+.pane:first-child {
+  border-left: none;
+}
+
+.feature-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 70px;
+  padding: 75px 70px 95px 70px;
+}
+
+.feature {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.feature-icon {
+  width: 130px;
+  height: 130px;
+  border-radius: 26px;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #066bdc;
+  font-size: 54px;
+}
+
+.feature-icon img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+}
+
+.feature h3 {
+  font-size: 34px;
+  line-height: 1.2;
+  margin: 20px 0 28px 0;
+  color: #444;
+  font-weight: 800;
+}
+
+.feature p {
+  grid-column: 1 / 3;
+  font-size: 26px;
+  line-height: 1.55;
+  color: #354055;
+  margin: 0;
+}
+
+.login-footer {
+  background: #f7f5ef;
+  padding: 55px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+}
+
+.footer-brand {
+  font-size: 25px;
+  color: #354055;
+  font-weight: 300;
+}
+
+.footer-brand span {
+  font-weight: 800;
+}
+
+.login-footer h3 {
+  font-size: 28px;
+  margin-top: 0;
+}
+
+.login-footer p {
+  font-size: 24px;
+  color: #354055;
+}
+
+.hero-image {
+  width: 100%;
+  height: auto;
+  object-fit: contrain;
+  border-radius: 18px 90px 18px 90px;
+}
+
+.menu-icon {
+  display: none;
+}
+
+.site-header {
+  justify-content: space-between;
+}
+
+.header-icons a {
+  color: #066bdc;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.person-icon {
+  font-size:50px;
+}
+
+.cart-icon {
+  font-size: 34px;
+}
+
+.login-actions {
+  grid-column: 1 / 3;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-top: 18px;
+}
+
+.login-actions button {
+  margin-top: 0;
+}
+
+.login-actions a {
+  color: #066bdc;
+  font-size: 21px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-actions a:hover,
+.header-icons a:hover {
+  text-decoration: underline;
+}
+
+/* CREATE ACCOUNT PAGE */
+
+.account-page {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #ffffff;
+  color: #354055;
+}
+
+.account-container {
+  width: 760px;
+  margin: 70px auto;
+}
+
+.account-container h1 {
+  font-size: 44px;
+  color: #354055;
+  margin-bottom: 20px;
+}
+
+.account-intro {
+  font-size: 22px;
+  line-height: 1.5;
+  margin-bottom: 35px;
+}
+
+.account-form {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: 18px 20px;
+  align-items: center;
+}
+
+.account-form label {
+  font-size: 21px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.account-form input,
+.account-form textarea {
+  width: 100%;
+  border: 1px solid #b8bec8;
+  font-size: 20px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+
+.account-form input {
+  height: 44px;
+}
+
+.account-form textarea {
+  height: 176px;
+  resize: vertical;
+}
+
+.account-form button {
+  grid-column: 2;
+  width: 160px;
+  background: #066bdc;
+  color: white;
+  border: none;
+  border-radius: 28px;
+  padding: 13px 36px;
+  font-size: 21px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ===== ORDER PAGE HEADER ===== */
+
+.site-header {
+  height: 72px;
+  border-bottom: 1px solid #e4e4e4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 76px;
+  box-sizing: border-box;
+}
+
+/* ===== QUOTE ROW LAYOUT ===== */
+
+
+
+/* keep your existing quote-box width */
+.quote-box {
+  width: 600px;
+  margin: 15px auto;
+  padding: 20px 35px;
+  border: 1px solid #c6cbd3;
+  display: grid;
+  grid-template-columns: 200px 250px 100px;
+  gap: 12px 15px;
+  align-items: center;
+  text-align: left;
+}
+
+.floating-right-btn {
+  position: absolute;
+  right: 60px;          /* distance from right edge */
+  top: 610px;           /* adjust to align with Evaluate button */
+
+  background: #c1c2c0;
+  border: 2px solid #4b8a35;
+  padding: 10px 30px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+
+.dialog-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.dialog-box {
+  width: 420px;
+  background: white;
+  border: 2px solid #333;
+  padding: 25px;
+  font-size: 18px;
+  text-align: center;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.dialog-buttons button {
+  padding: 8px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* ===== EXISTING LOGIN BOX ===== */
+
+.existing-login-box {
+  position: relative;     /* IMPORTANT */
+  border: 1px solid #c6cbd3;
+  padding: 25px 25px 20px 25px;
+  margin-bottom: 35px;
+  background: #f9fafc;
+}
+
+.existing-login-title {
+  position: absolute;
+  top: -12px;
+  left: 12px;
+
+  font-size: 22px;
+  font-weight: 400;
+  color: #165eee;
+
+  background: white;
+  padding: 0 6px;
+}
+
+.existing-login-form {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: 12px 18px;
+  align-items: center;
+}
+
+.existing-login-form label {
+  text-align: right;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.existing-login-form input {
+  height: 40px;
+  border: 1px solid #b8bec8;
+  font-size: 18px;
+  padding: 5px 10px;
+}
+
+.row-cost {
+  min-width: 100px;
+  font-size: 18px;
+  color: #354055;
+  border: none !important;
+  background: white;
+}
+
+.cart-link {
+  text-decoration: none;
+  color: #066bdc;
+}
+
+.cart-page {
+  width: 90%;
+  margin: 50px auto;
+}
+
+.cart-page h1 {
+  font-size: 42px;
+  color: #354055;
+}
+
+.cart-project {
+  margin: 40px 0;
+  padding: 25px;
+  border: 1px solid #c6cbd3;
+  background: white;
+}
+
+.cart-project h2 {
+  color: #354055;
+}
+
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.cart-table th,
+.cart-table td {
+  border: 1px solid #c6cbd3;
+  padding: 10px;
+  text-align: center;
+}
+
+.cart-summary {
+  margin-top: 20px;
+  font-size: 20px;
+  text-align: right;
+}
+
+.header-icon-link {
+  color: #066bdc;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.header-icon-link:hover {
+  text-decoration: underline;
+}
+
+.header-icons {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+
+.person-icon {
+  font-size: 60px;
+  line-height: 1;
+}
+
+.cart-icon {
+  font-size: 34px;
+}
+
+.cart-project-title {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cart-project-title button {
+  background: white;
+  border: 2px solid #4b8a35;
+  color: #4b8a35;
+  padding: 7px 18px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.cart-message {
+  display: none;
+  position: fixed;
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #c6cbd3;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  padding: 18px 35px;
+  font-size: 20px;
+  color: #354055;
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-final-summary {
+  margin: 50px 0 30px auto;
+  width: 360px;
+  padding: 25px;
+  border: 1px solid #c6cbd3;
+  background: white;
+  font-size: 20px;
+  text-align: right;
+}
+
+.cart-final-summary h2 {
+  margin-top: 0;
+  color: #354055;
+}

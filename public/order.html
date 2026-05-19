@@ -1,0 +1,126 @@
+
+<header class="site-header">
+  <div class="brand-logo">
+    Window.<span class="orange-text">derivative</span>insight.com
+  </div>
+
+  <div class="header-icons">
+    <a href="index.html" class="header-icon-link">🏠</a>
+    <a href="order.html" class="header-icon-link">Design</a>
+    <span class="person-icon">♙</span>
+    <a href="cart.html" class="cart-link">
+
+      <a href="cart.html" class="cart-link">
+        <span class="cart-icon-wrapper">
+            <span class="cart-icon">🛒</span>
+            <span class="cart-count"></span>
+        </span>
+      </a>
+
+    </a>
+  </div>
+</header>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Window Quote Page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<script src="common.js"></script>
+
+<body>
+
+  <table class="order-table">
+    <tr>
+      <th>Number of<br>Windows</th>
+      <th>Height, in</th>
+      <th>Height<br>Fraction</th>
+      <th>Width, in</th>
+      <th>Width<br>Fraction</th>
+      <th>Openings Per<br>Window</th>
+      <th>Glass<br>Pattern</th>
+      <th>Addings</th>
+      <th>Cost</th>
+    </tr>
+
+    <tbody id="windowRows"></tbody>
+  </table>
+
+  <button class="evaluate-btn" onclick="evaluateQuote()">Evaluate Quote</button>
+
+  <button class="floating-right-btn" onclick="confirmNewProject()">
+    Start a New Project
+  </button>
+
+
+  <div class="quote-box">
+    <label>Quote, $:</label>
+    <input id="quote" value="0" readonly>
+
+    <label>Tax:</label>
+    <input id="tax" value="0" readonly>
+
+    <label>Total, $:</label>
+    <input id="total" value="0" readonly>
+
+    <label>Promotion Code:</label>
+    <input type="text" id="promotionCode">
+    <button onclick="evaluateQuote()">apply</button>
+
+    <label>Discount on Quote:</label>
+    <input id="discountQuote" value="0" readonly>
+  </div>
+
+
+
+  <div class="upload-box">
+    <label>Upload design draft or other document:</label>
+
+    <div class="upload-row">
+        <input type="file" id="designFiles" multiple hidden>
+        <button onclick="document.getElementById('designFiles').click()">Upload</button>
+        <div id="fileNames" class="file-names">No files selected</div>
+    </div>
+
+    <button class="submit-project-btn" onclick="saveProjectToCart()" >
+        Save Project to Cart
+    </button>
+  </div>
+
+  <div id="submitDialog" class="dialog-overlay">
+    <div class="dialog-box">
+        <p>
+        Please recheck the inputs and make sure all designs are correct.
+        Multiple submissions could delay the order process.
+        After we receive the design and payment, you are welcome to contact us
+        to confirm the order process. The order usually takes 50 to 60 days to arrive.
+        </p>
+
+        <div class="dialog-buttons">
+            <button onclick="closeSubmitDialog()">Cancel</button>
+            <button onclick="submitProject()">Submit</button>
+        </div>
+    </div>
+  </div>
+
+  <div id="cartMessage" class="cart-message">
+    The project is added to the cart.
+  </div>
+
+  <script src="order.js"></script>
+
+  <div id="confirmDialog" class="dialog-overlay">
+    <div class="dialog-box">
+      <p>The existing inputs might be lost. Continue?</p>
+
+      <div class="dialog-buttons">
+        <button onclick="closeDialog()">Cancel</button>
+        <button onclick="proceedNewProject()">Yes</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/static/css/main.ad95dd17.css",
+    "main.js": "/static/js/main.c1b24f97.js",
+    "static/js/453.0723b5ea.chunk.js": "/static/js/453.0723b5ea.chunk.js",
+    "static/media/collab2.png": "/static/media/collab2.134bb4e1de68701d2507.png",
+    "static/media/collab1.png": "/static/media/collab1.73be3cf1717df5a5e719.png",
+    "static/media/pump1.png": "/static/media/pump1.ba9a3269a19f4a85e71f.png",
+    "static/media/OPRO_company.png": "/static/media/OPRO_company.8846f82591f01c0efcc6.png",
+    "static/media/flowmeter1.png": "/static/media/flowmeter1.5010e88996728ce34b10.png",
+    "static/media/datacenter.png": "/static/media/datacenter.0e1a58254449f327c1d4.png",
+    "static/media/chart1b.png": "/static/media/chart1b.e380e34ccf511f7d2b9e.png",
+    "static/media/chart3b.png": "/static/media/chart3b.36a5ba2665827c7a6a34.png",
+    "static/media/chart2b.png": "/static/media/chart2b.3ff40235ff004aa767d5.png",
+    "static/media/image1b.png": "/static/media/image1b.c6b35bab72122e189be2.png",
+    "index.html": "/index.html",
+    "main.ad95dd17.css.map": "/static/css/main.ad95dd17.css.map",
+    "main.c1b24f97.js.map": "/static/js/main.c1b24f97.js.map",
+    "453.0723b5ea.chunk.js.map": "/static/js/453.0723b5ea.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ad95dd17.css",
+    "static/js/main.c1b24f97.js"
+  ]
+}

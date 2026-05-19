@@ -1,0 +1,67 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Project Cart</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<script>
+function goToDesign(event) {
+  event.preventDefault();
+
+  if (sessionStorage.getItem("loggedIn") === "true") {
+    window.location.href = "order.html";
+  } else {
+    alert("Please Sign in.");
+  }
+}
+</script>
+
+<script>
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("windowCart")) || [];
+    document.querySelectorAll(".cart-count").forEach(el => {
+      el.innerText = cart.length;
+    });
+  }
+
+  updateCartCount();
+</script>
+
+<script src="common.js"></script>
+<body>
+
+<header class="site-header">
+  <div class="brand-logo">
+    Window.<span class="orange-text">derivative</span>insight.com
+  </div>
+
+  <div class="header-icons">
+    <a href="index.html" class="header-icon-link">🏠</a>
+
+    <a href="#" class="header-icon-link" onclick="goToDesign(event)">Design</a>   
+    <span class="person-icon">♙</span>
+
+    <a href="cart.html" class="cart-link">
+
+      <a href="cart.html" class="cart-link">
+        <span class="cart-icon-wrapper">
+            <span class="cart-icon">🛒</span>
+            <span class="cart-count"></span>
+        </span>
+      </a>
+
+    </a>
+  </div>
+</header>
+
+  <main class="cart-page">
+    <h1>Project Cart</h1>
+    <div id="cartProjects"></div>
+  </main>
+
+  <script src="cart.js"></script>
+</body>
+</html>

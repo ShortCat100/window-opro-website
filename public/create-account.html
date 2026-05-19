@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create a New Account</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<script>
+function goToDesign(event) {
+  event.preventDefault();
+
+  if (sessionStorage.getItem("loggedIn") === "true") {
+    window.location.href = "order.html";
+  } else {
+    alert("Please Sign in.");
+  }
+}
+</script>
+
+<body class="account-page">
+
+<header class="site-header">
+  <div class="brand-logo">
+    Window.<span class="orange-text">derivative</span>insight.com
+  </div>
+
+  <div class="header-icons">
+    <a href="index.html" class="header-icon-link">🏠</a>
+
+    <a href="#" class="header-icon-link" onclick="goToDesign(event)">Design</a>   
+    <span class="person-icon">♙</span>
+    <a href="cart.html" class="cart-link">
+
+      <a href="cart.html" class="cart-link">
+        <span class="cart-icon-wrapper">
+            <span class="cart-icon">🛒</span>
+            <span class="cart-count">0</span>
+        </span>
+      </a>
+
+    </a>
+  </div>
+</header>
+
+  <main class="account-container">
+    <h1>Create a New Account</h1>
+
+    <p class="account-intro">
+      Please fill up your information and we will send a supplier ID and
+      verification code by email.
+    </p>
+    
+
+
+    <div class="existing-login-box">
+    <div class="existing-login-title">
+        If you have a supplier ID and verification code:
+    </div>
+
+    <div class="existing-login-form">
+        <label>Supplier ID:</label>
+        <input type="text">
+
+        <label>Verification Code:</label>
+        <input type="text">
+    </div>
+    </div>
+
+
+
+    <form class="account-form">
+      <label>Full Name:</label>
+      <input type="text">
+
+      <label>Company Name:</label>
+      <input type="text">
+
+      <label>Email:</label>
+      <input type="email">
+
+      <label>Phone Number:</label>
+      <input type="tel">
+
+      <label>Message:</label>
+      <textarea maxlength="1000"></textarea>
+
+      <button type="button">Submit</button>
+    </form>
+  </main>
+
+</body>
+</html>
