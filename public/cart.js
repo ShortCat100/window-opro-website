@@ -158,33 +158,45 @@ function closeSubmitDialog() {
 }
 
 async function submitProject() {
-  const cart = JSON.parse(localStorage.getItem("windowCart")) || [];
+  const submitButton = document.querySelector("#submitDialog .dialog-buttons button:last-child");
+  submitButton.disabled = true;
+  submitButton.innerText = "Submitting...";
 
-  if (cart.length === 0) {
-    alert("No projects in cart.");
-    return;
-  }
+  try {
+    const cart = JSON.parse(localStorage.getItem("windowCart")) || [];
 
-  const formData = new FormData();
-  formData.append("cart", JSON.stringify(cart));
+    if (cart.length === 0) {
+      alert("No projects in cart.");
+      return;
+    }
 
-  const files = document.getElementById("designFiles").files;
+    const formData = new FormData();
+    formData.append("cart", JSON.stringify(cart));
 
-  for (let i = 0; i < files.length; i++) {
-    formData.append("designFiles", files[i]);
-  }
+    const files = document.getElementById("designFiles").files;
 
-  const response = await fetch("/api/submit-cart", {
-    method: "POST",
-    body: formData
-  });
+    for (let i = 0; i < files.length; i++) {
+      formData.append("designFiles", files[i]);
+    }
 
-  if (response.ok) {
-    alert("All projects submitted successfully.");
-    localStorage.removeItem("windowCart");
-    closeSubmitDialog();
-    location.reload();
-  } else {
-    alert("Submission failed. Please contact us directly.");
+    const response = await fetch("/api/submit-cart", {
+      method: "POST",
+      body: formData
+    });
+
+    if (response.ok) {
+      alert("All projects submitted successfully.");
+      localStorage.removeItem("windowCart");
+      closeSubmitDialog();
+      location.reload();
+    } else {
+      alert("Submission failed. Please contact us directly.");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Submission failed. Please check your connection or contact us directly.");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.innerText = "Submit";
   }
 }
