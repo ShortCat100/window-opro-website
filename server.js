@@ -144,23 +144,23 @@ ${JSON.stringify(rows, null, 2)}
       path: file.path
     }));
 
-    const transporter = nodemailer.createTransport({
-      host: "YOUR_SMTP_HOST",
-      port: 587,
-      secure: false,
-      auth: {
-        user: "YOUR_EMAIL_USERNAME",
-        pass: "YOUR_EMAIL_PASSWORD"
-      }
-    });
+const transporter = nodemailer.createTransport({
+  host: "smtp.zoho.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
-    await transporter.sendMail({
-      from: "YOUR_EMAIL_USERNAME",
-      to: "admin@derivativeinspite-window.com",
-      subject: "New Window Project Submission",
-      text: emailBody,
-      attachments: attachments
-    });
+await transporter.sendMail({
+  from: process.env.EMAIL_USER,
+  to: "admin-window@derivativeinsight.com",
+  subject: "New Window Project Submission",
+  text: emailBody,
+  attachments: attachments
+});
 
     res.json({ success: true });
   } catch (error) {
