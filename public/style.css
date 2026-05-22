@@ -605,6 +605,33 @@ button {
   text-decoration: none;
 }
 
+.register-toast {
+  position: fixed;
+  top: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  max-width: 560px;
+  width: calc(100% - 48px);
+  background: #066bdc;
+  color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  padding: 18px 24px;
+  text-align: center;
+}
+
+.register-toast p {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.register-toast-error {
+  background: #b42318;
+}
+
 /* ===== ORDER PAGE HEADER ===== */
 
 .site-header {

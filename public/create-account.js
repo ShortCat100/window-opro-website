@@ -89,8 +89,29 @@ async function loadAccountDashboard() {
   document.getElementById("accountContent").innerHTML = html;
 }
 
+let registerToastTimer = null;
+
+function showRegisterToast(message, isError) {
+  const toast = document.getElementById("registerToast");
+  const toastMessage = document.getElementById("registerToastMessage");
+
+  toastMessage.innerText = message;
+  toast.classList.toggle("register-toast-error", Boolean(isError));
+  toast.style.display = "block";
+
+  if (registerToastTimer) {
+    clearTimeout(registerToastTimer);
+  }
+
+  registerToastTimer = setTimeout(() => {
+    toast.style.display = "none";
+  }, 4500);
+}
+
 async function registerAccount() {
   const registerMessage = document.getElementById("registerMessage");
+  const submitButton = document.querySelector("#registerForm button[type='submit']");
+
   registerMessage.innerText = "";
 
   const payload = {
@@ -104,24 +125,43 @@ async function registerAccount() {
     message: document.getElementById("regMessage").value.trim()
   };
 
-  const response = await fetch("/api/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
+  submitButton.disabled = true;
+  submitButton.innerText = "Creating Account...";
 
-  const data = await response.json();
+  try {
+    const response = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
 
-  if (!response.ok) {
-    registerMessage.innerText = data.message || "Registration failed.";
-    return;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const errorMessage = data.message || "Registration failed.";
+      registerMessage.innerText = errorMessage;
+      showRegisterToast(errorMessage, true);
+      return;
+    }
+
+    document.getElementById("registerForm").reset();
+    registerMessage.innerText = "";
+    showRegisterToast(
+      "Your account is created. A confirmation is sent to your email.",
+      false
+    );
+  } catch (error) {
+    console.error(error);
+    const errorMessage =
+      "Unable to create account right now. Please check your connection and try again.";
+    registerMessage.innerText = errorMessage;
+    showRegisterToast(errorMessage, true);
+  } finally {
+    submitButton.disabled = false;
+    submitButton.innerText = "Create Account";
   }
-
-  registerMessage.innerText =
-    "Account created successfully. You can now sign in with your user name and password.";
-  document.getElementById("registerForm").reset();
 }
 
 window.addEventListener("load", async () => {
