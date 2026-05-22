@@ -3,6 +3,10 @@ const multer = require("multer");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const { createClient } = require("@supabase/supabase-js");
+const {
+  appendCartSubmissionRows,
+  isGoogleSheetsConfigured
+} = require("./lib/googleSheets");
 
 const express = require("express");
 const fs = require("fs");
@@ -245,7 +249,8 @@ async function saveCartSubmissionsToSupabase(username, cart) {
 
   return {
     submissionTime,
-    rowCount: records.length
+    rowCount: records.length,
+    records
   };
 }
 
@@ -638,7 +643,6 @@ app.post("/api/submit-cart", upload.array("designFiles"), async (req, res) => {
   try {
     const username = String(req.body.username || "").trim();
     const cart = JSON.parse(req.body.cart || "[]");
-    const uploadedFileNames = (req.files || []).map(file => file.originalname);
 
     if (!username) {
       return res.status(400).json({
@@ -663,53 +667,36 @@ app.post("/api/submit-cart", upload.array("designFiles"), async (req, res) => {
 
     const savedSubmission = await saveCartSubmissionsToSupabase(username, cart);
 
-    let emailBody = "New window cart submission\n\n";
-    emailBody += `User Name: ${username}\n`;
-    emailBody += `Submission Time: ${savedSubmission.submissionTime}\n\n`;
+    // Email submission is pending until SMTP is configured.
 
-    cart.forEach((project, index) => {
-      emailBody += `PROJECT ${index + 1}\n`;
-      emailBody += `Quote: $${project.quote}\n`;
-      emailBody += `Tax: $${project.tax}\n`;
-      emailBody += `Total: $${project.total}\n`;
-      emailBody += `Discount Quote: $${project.discountQuote}\n`;
-      emailBody += `Promotion Code: ${project.promotionCode || "None"}\n\n`;
+    let sheetResult = { skipped: true };
 
-      emailBody += "Rows:\n";
-      emailBody += JSON.stringify(project.rows, null, 2);
-      emailBody += "\n\n----------------------\n\n";
-    });
+    try {
+      sheetResult = await appendCartSubmissionRows(savedSubmission.records);
+    } catch (sheetError) {
+      console.error("Google Sheets error:", sheetError);
 
-    const attachments = req.files.map(file => ({
-      filename: file.originalname,
-      path: file.path
-    }));
-
-    const transporter = nodemailer.createTransport({
-      host: "smtp.zoho.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: "admin-window@derivativeinsight.com",
-        pass: "Dhy2339003"
+      if (isGoogleSheetsConfigured()) {
+        throw new Error("GOOGLE_SHEETS_FAILED");
       }
-    });
-
-    await transporter.sendMail({
-      from: "admin-window@derivativeinsight.com",
-      to: "admin-window@derivativeinsight.com",
-      subject: "New Window Cart Submission",
-      text: emailBody,
-      attachments: attachments
-    });
+    }
 
     res.json({
       success: true,
       submissionTime: savedSubmission.submissionTime,
-      rowCount: savedSubmission.rowCount
+      rowCount: savedSubmission.rowCount,
+      googleSheets: sheetResult
     });
   } catch (error) {
     console.error("Submit cart error:", error);
+
+    if (error.message === "GOOGLE_SHEETS_FAILED") {
+      return res.status(500).json({
+        success: false,
+        message:
+          "Saved to database, but Google Sheets update failed. Please contact support."
+      });
+    }
 
     if (error.message === "NO_CART_ROWS") {
       return res.status(400).json({
