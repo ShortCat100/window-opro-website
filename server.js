@@ -107,6 +107,55 @@ function mapSupabaseUser(row) {
   };
 }
 
+function groupSubmissionsByTime(rows) {
+  const groups = new Map();
+
+  rows.forEach(row => {
+    const key = row.submission_time;
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        submissionTime: key,
+        discount: row.discount,
+        totalCost: row.total_cost,
+        lineItems: []
+      });
+    }
+
+    groups.get(key).lineItems.push({
+      numWindows: row.num_windows,
+      heightInch: row.height_inch,
+      widthInch: row.width_inch,
+      openings: row.openings,
+      glassType: row.glass_type,
+      adding: row.adding,
+      cost: row.cost
+    });
+  });
+
+  return Array.from(groups.values());
+}
+
+async function fetchSubmissionHistory(email) {
+  if (!supabase || !email) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from(CART_SUBMISSION_ROWS_TABLE)
+    .select(
+      "submission_time, num_windows, height_inch, width_inch, openings, glass_type, adding, cost, discount, total_cost"
+    )
+    .eq("email", email)
+    .order("submission_time", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return groupSubmissionsByTime(data || []);
+}
+
 function isDuplicateUsernameError(error) {
   return error?.code === "23505";
 }
@@ -474,13 +523,15 @@ app.get("/api/account", async (req, res) => {
     }
 
     const storedData = getStoredUserData(username);
+    const submissionHistory = await fetchSubmissionHistory(user.email);
 
     return res.json({
       success: true,
       username: user.username,
       profile: mapSupabaseUser(user),
       cart: storedData.cart || [],
-      orderDraft: storedData.orderDraft || null
+      orderDraft: storedData.orderDraft || null,
+      submissionHistory
     });
   } catch (error) {
     console.error("Account lookup error:", error);

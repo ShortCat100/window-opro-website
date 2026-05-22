@@ -6,6 +6,72 @@ function formatMoney(value) {
   });
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function renderSubmissionHistory(submissions) {
+  if (!submissions.length) {
+    return `
+      <div class="account-block">
+        <h2>Submission History</h2>
+        <p>No submitted quotes yet.</p>
+      </div>
+    `;
+  }
+
+  let html = `
+    <div class="account-block">
+      <h2>Submission History (${submissions.length})</h2>
+  `;
+
+  submissions.forEach(submission => {
+    html += `
+      <div class="account-submission">
+        <h3>Submitted ${escapeHtml(submission.submissionTime)}</h3>
+        <p><strong>Discount:</strong> $${formatMoney(submission.discount)}</p>
+        <p><strong>Total Cost:</strong> $${formatMoney(submission.totalCost)}</p>
+
+        <table class="cart-table account-history-table">
+          <tr>
+            <th>Number of Windows</th>
+            <th>Height-inch</th>
+            <th>Width-inch</th>
+            <th>Opening Number</th>
+            <th>Glass Type</th>
+            <th>Adding</th>
+            <th>Cost</th>
+          </tr>
+    `;
+
+    submission.lineItems.forEach(line => {
+      html += `
+        <tr>
+          <td>${escapeHtml(line.numWindows)}</td>
+          <td>${escapeHtml(line.heightInch)}</td>
+          <td>${escapeHtml(line.widthInch)}</td>
+          <td>${escapeHtml(line.openings)}</td>
+          <td>${escapeHtml(line.glassType)}</td>
+          <td>${escapeHtml(line.adding)}</td>
+          <td>${escapeHtml(line.cost)}</td>
+        </tr>
+      `;
+    });
+
+    html += `
+        </table>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  return html;
+}
+
 function showAccountView() {
   document.getElementById("registerSection").style.display = "none";
   document.getElementById("accountSection").style.display = "block";
@@ -34,16 +100,19 @@ async function loadAccountDashboard() {
   const profile = data.profile || {};
   const cart = data.cart || [];
   const draft = data.orderDraft;
+  const submissionHistory = data.submissionHistory || [];
 
   let html = `
     <div class="account-profile">
-      <p><strong>User Name:</strong> ${username}</p>
-      <p><strong>Full Name:</strong> ${profile.fullName || ""}</p>
-      <p><strong>Company:</strong> ${profile.companyName || ""}</p>
-      <p><strong>Email:</strong> ${profile.email || ""}</p>
-      <p><strong>Phone:</strong> ${profile.phone || ""}</p>
+      <p><strong>User Name:</strong> ${escapeHtml(username)}</p>
+      <p><strong>Full Name:</strong> ${escapeHtml(profile.fullName || "")}</p>
+      <p><strong>Company:</strong> ${escapeHtml(profile.companyName || "")}</p>
+      <p><strong>Email:</strong> ${escapeHtml(profile.email || "")}</p>
+      <p><strong>Phone:</strong> ${escapeHtml(profile.phone || "")}</p>
     </div>
   `;
+
+  html += renderSubmissionHistory(submissionHistory);
 
   if (draft && draft.rows) {
     const filledRows = draft.rows.filter(row => row.numWindows).length;
@@ -66,12 +135,12 @@ async function loadAccountDashboard() {
   if (cart.length === 0) {
     html += `
       <div class="account-block">
-        <h2>Saved Quotes</h2>
-        <p>No saved projects in your cart yet.</p>
+        <h2>Quotes in Cart (not submitted)</h2>
+        <p>No saved projects in your cart.</p>
       </div>
     `;
   } else {
-    html += `<div class="account-block"><h2>Saved Quotes (${cart.length})</h2>`;
+    html += `<div class="account-block"><h2>Quotes in Cart (${cart.length}) — not submitted</h2>`;
 
     cart.forEach((project, index) => {
       html += `
