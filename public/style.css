@@ -232,9 +232,7 @@ button {
 
 .header-icons {
   display: flex;
-  gap: 32px;
-  font-size: 28px;
-  color: #066bdc;
+  gap: 42px;
   align-items: center;
 }
 
@@ -434,19 +432,37 @@ button {
   justify-content: space-between;
 }
 
-.header-icons a {
+.header-icon-link {
   color: #066bdc;
   text-decoration: none;
   font-size: 24px;
   font-weight: 600;
+  line-height: 1;
 }
 
-.person-icon {
-  font-size:50px;
+.header-icon-link:not(.header-icon-img):hover {
+  text-decoration: underline;
 }
 
-.cart-icon {
-  font-size: 34px;
+.header-icon-img {
+  display: inline-flex;
+  align-items: center;
+}
+
+.header-icon-img:hover {
+  opacity: 0.85;
+}
+
+.header-nav-icon {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.cart-link .cart-count {
+  font-size: 16px;
+  font-weight: 700;
+  margin-left: 4px;
 }
 
 .login-actions {
@@ -468,8 +484,7 @@ button {
   text-decoration: none;
 }
 
-.login-actions a:hover,
-.header-icons a:hover {
+.login-actions a:hover {
   text-decoration: underline;
 }
 
@@ -541,6 +556,53 @@ button {
   font-size: 21px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.account-message {
+  margin-top: 20px;
+  font-size: 20px;
+  color: #354055;
+}
+
+.account-signin-link {
+  margin-top: 24px;
+  font-size: 20px;
+}
+
+.account-signin-link a {
+  color: #066bdc;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.account-profile p,
+.account-block p,
+.account-block h2,
+.account-block h3 {
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.account-block {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #d8dde5;
+}
+
+.account-project {
+  margin: 16px 0;
+  padding: 14px 18px;
+  border: 1px solid #c6cbd3;
+  background: #fafbfd;
+}
+
+.account-action-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: #066bdc;
+  font-size: 20px;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 /* ===== ORDER PAGE HEADER ===== */
@@ -670,7 +732,8 @@ button {
 
 .cart-link {
   text-decoration: none;
-  color: #066bdc;
+  display: inline-flex;
+  align-items: center;
 }
 
 .cart-page {
@@ -713,31 +776,6 @@ button {
   text-align: right;
 }
 
-.header-icon-link {
-  color: #066bdc;
-  text-decoration: none;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.header-icon-link:hover {
-  text-decoration: underline;
-}
-
-.header-icons {
-  display: flex;
-  gap: 28px;
-  align-items: center;
-}
-
-.person-icon {
-  font-size: 60px;
-  line-height: 1;
-}
-
-.cart-icon {
-  font-size: 34px;
-}
 
 .cart-project-title {
   display: flex;

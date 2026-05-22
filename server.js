@@ -1,10 +1,23 @@
 
 const multer = require("multer");
 const nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
+const { createClient } = require("@supabase/supabase-js");
 
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+
+const BCRYPT_ROUNDS = 10;
+const USERS_TABLE = "users";
+
+const supabase =
+  process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+    ? createClient(
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY
+      )
+    : null;
 
 const app = express();
 const PORT = 3000;
@@ -46,18 +59,327 @@ function readJson(fileName) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
-app.post("/api/login", (req, res) => {
-  const { supplierId, verifyCode } = req.body;
-  const db = readJson("iddatabase.json");
+function writeJson(fileName, data) {
+  const filePath = path.join(__dirname, "private-data", fileName);
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+}
 
-  if (db.suppliers[supplierId] === verifyCode) {
-    return res.json({ success: true });
+function readUserDataStore() {
+  const filePath = path.join(__dirname, "private-data", "user-data.json");
+
+  if (!fs.existsSync(filePath)) {
+    return { userData: {} };
   }
 
-  res.status(401).json({
-    success: false,
-    message: "Invalid Supplier ID or verification code"
-  });
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
+function writeUserDataStore(data) {
+  writeJson("user-data.json", data);
+}
+
+function getStoredUserData(username) {
+  const store = readUserDataStore();
+  return store.userData[username] || { cart: [], orderDraft: null };
+}
+
+function saveStoredUserData(username, cart, orderDraft) {
+  const store = readUserDataStore();
+  store.userData[username] = {
+    cart: Array.isArray(cart) ? cart : [],
+    orderDraft: orderDraft || null
+  };
+  writeUserDataStore(store);
+}
+
+function mapSupabaseUser(row) {
+  return {
+    fullName: row.full_name,
+    companyName: row.company_name,
+    email: row.email,
+    phone: row.phone,
+    message: row.message || ""
+  };
+}
+
+function isDuplicateUsernameError(error) {
+  return error?.code === "23505";
+}
+
+async function findRegisteredUser(username) {
+  if (!supabase) {
+    throw new Error("SUPABASE_NOT_CONFIGURED");
+  }
+
+  const { data, error } = await supabase
+    .from(USERS_TABLE)
+    .select(
+      "username, password_hash, full_name, company_name, email, phone, message, created_at"
+    )
+    .eq("username", username)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+app.post("/api/login", async (req, res) => {
+  try {
+    const username = String(req.body.username || "").trim();
+    const password = req.body.password;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "User name and password are required."
+      });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({
+        success: false,
+        message: "User login is temporarily unavailable. Please try again later."
+      });
+    }
+
+    const registeredUser = await findRegisteredUser(username);
+
+    if (registeredUser?.password_hash) {
+      const passwordMatches = await bcrypt.compare(
+        password,
+        registeredUser.password_hash
+      );
+
+      if (passwordMatches) {
+        return res.json({
+          success: true,
+          registered: true,
+          username: registeredUser.username
+        });
+      }
+    }
+
+    const idDb = readJson("iddatabase.json");
+
+    if (idDb.suppliers[username] === password) {
+      return res.json({
+        success: true,
+        guest: true,
+        username
+      });
+    }
+
+    return res.status(401).json({
+      success: false,
+      message: "User name or password is incorrect."
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to sign in right now. Please try again later."
+    });
+  }
+});
+
+app.post("/api/register", async (req, res) => {
+  try {
+    const {
+      username,
+      password,
+      confirmPassword,
+      fullName,
+      companyName,
+      email,
+      phone,
+      message
+    } = req.body;
+
+    const trimmedUsername = String(username || "").trim();
+    const trimmedFullName = String(fullName || "").trim();
+    const trimmedCompanyName = String(companyName || "").trim();
+    const trimmedEmail = String(email || "").trim();
+    const trimmedPhone = String(phone || "").trim();
+    const trimmedMessage = String(message || "").trim();
+
+    const missingFields = [];
+
+    if (!trimmedUsername) missingFields.push("user name");
+    if (!password) missingFields.push("password");
+    if (!confirmPassword) missingFields.push("confirm password");
+    if (!trimmedFullName) missingFields.push("full name");
+    if (!trimmedCompanyName) missingFields.push("company name");
+    if (!trimmedEmail) missingFields.push("email");
+    if (!trimmedPhone) missingFields.push("phone number");
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Please fill in all required fields: ${missingFields.join(", ")}.`
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Password and confirm password do not match."
+      });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({
+        success: false,
+        message:
+          "Account registration is temporarily unavailable. Please try again later."
+      });
+    }
+
+    const idDb = readJson("iddatabase.json");
+
+    if (idDb.suppliers[trimmedUsername]) {
+      return res.status(409).json({
+        success: false,
+        message: "This user name is already taken."
+      });
+    }
+
+    const existingUser = await findRegisteredUser(trimmedUsername);
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: "This user name is already taken."
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+
+    const { error: insertError } = await supabase.from(USERS_TABLE).insert({
+      username: trimmedUsername,
+      password_hash: passwordHash,
+      full_name: trimmedFullName,
+      company_name: trimmedCompanyName,
+      email: trimmedEmail,
+      phone: trimmedPhone,
+      message: trimmedMessage
+    });
+
+    if (insertError) {
+      if (isDuplicateUsernameError(insertError)) {
+        return res.status(409).json({
+          success: false,
+          message: "This user name is already taken."
+        });
+      }
+
+      console.error("Supabase register error:", insertError);
+      return res.status(500).json({
+        success: false,
+        message: "Unable to create account right now. Please try again later."
+      });
+    }
+
+    saveStoredUserData(trimmedUsername, [], null);
+
+    return res.json({
+      success: true,
+      username: trimmedUsername
+    });
+  } catch (error) {
+    console.error("Register error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to create account right now. Please try again later."
+    });
+  }
+});
+
+app.get("/api/account", async (req, res) => {
+  try {
+    const username = String(req.query.username || "").trim();
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: "User name is required."
+      });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({
+        success: false,
+        message: "Account service is temporarily unavailable."
+      });
+    }
+
+    const user = await findRegisteredUser(username);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Account not found."
+      });
+    }
+
+    const storedData = getStoredUserData(username);
+
+    return res.json({
+      success: true,
+      username: user.username,
+      profile: mapSupabaseUser(user),
+      cart: storedData.cart || [],
+      orderDraft: storedData.orderDraft || null
+    });
+  } catch (error) {
+    console.error("Account lookup error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to load account right now. Please try again later."
+    });
+  }
+});
+
+app.post("/api/user-data", async (req, res) => {
+  try {
+    const username = String(req.body.username || "").trim();
+    const { cart, orderDraft } = req.body;
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: "User name is required."
+      });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({
+        success: false,
+        message: "Account service is temporarily unavailable."
+      });
+    }
+
+    const user = await findRegisteredUser(username);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Account not found."
+      });
+    }
+
+    saveStoredUserData(username, cart, orderDraft);
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("User data save error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to save account data right now. Please try again later."
+    });
+  }
 });
 
 app.post("/api/quote", (req, res) => {

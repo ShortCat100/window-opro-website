@@ -1,0 +1,16 @@
+{
+  "users": {
+    "demo1": {
+      "password": "pw1",
+      "profile": {
+        "fullName": "Test User",
+        "companyName": "Co",
+        "email": "t@t.com",
+        "phone": "123",
+        "message": ""
+      },
+      "cart": [],
+      "orderDraft": null
+    }
+  }
+}

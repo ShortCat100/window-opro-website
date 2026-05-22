@@ -26,6 +26,23 @@ function formatSize(number, fraction) {
   return `${number}-${fracStr}`;
 }
 
+window.addEventListener("load", () => {
+  if (!isLoggedIn()) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  if (!isRegisteredUser()) {
+    document.getElementById("cartProjects").innerHTML =
+      "<p>Guest access cannot view saved cart projects. Please register for full account features.</p>";
+    document.querySelector(".cart-submit-row")?.style.setProperty("display", "none");
+    document.querySelector(".cart-upload-box")?.style.setProperty("display", "none");
+    return;
+  }
+
+  loadCart();
+});
+
 function loadCart() {
   const cart = JSON.parse(localStorage.getItem("windowCart")) || [];
   const container = document.getElementById("cartProjects");
@@ -120,8 +137,6 @@ container.innerHTML += `
 
 }
 
-loadCart();
-
 function confirmDeleteProject(index) {
   const confirmed = confirm(`Selected project ${index + 1} will be deleted.`);
 
@@ -131,6 +146,7 @@ function confirmDeleteProject(index) {
   cart.splice(index, 1);
   localStorage.setItem("windowCart", JSON.stringify(cart));
 
+  saveUserData();
   loadCart();
 }
 
@@ -158,6 +174,11 @@ function closeSubmitDialog() {
 }
 
 async function submitProject() {
+  if (!isRegisteredUser()) {
+    showRegisterPrompt();
+    return;
+  }
+
   const submitButton = document.querySelector("#submitDialog .dialog-buttons button:last-child");
   submitButton.disabled = true;
   submitButton.innerText = "Submitting...";
@@ -187,6 +208,7 @@ async function submitProject() {
     if (response.ok) {
       alert("All projects submitted successfully.");
       localStorage.removeItem("windowCart");
+      await saveUserData();
       closeSubmitDialog();
       location.reload();
     } else {

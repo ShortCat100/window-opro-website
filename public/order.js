@@ -1,7 +1,12 @@
 window.onload = function () {
-  if (sessionStorage.getItem("loggedIn") !== "true") {
+  if (!isLoggedIn()) {
     window.location.href = "index.html";
     return;
+  }
+
+  if (sessionStorage.getItem("showGuestWelcome") === "true") {
+    showGuestWelcomeDialog();
+    sessionStorage.removeItem("showGuestWelcome");
   }
 
   createRows();
@@ -187,13 +192,19 @@ function closeDialog() {
   document.getElementById("confirmDialog").style.display = "none";
 }
 
-function proceedNewProject() {
+async function proceedNewProject() {
   localStorage.removeItem("currentOrderDraft");
+  await saveUserData();
   location.reload();
 }
 
 
 async function saveProjectToCart() {
+  if (!isRegisteredUser()) {
+    showRegisterPrompt();
+    return;
+  }
+
   await evaluateQuote();
 
   const rows = collectRows();
@@ -215,6 +226,7 @@ async function saveProjectToCart() {
 
   localStorage.setItem("windowCart", JSON.stringify(cart));
 
+  await saveUserData();
   showCartMessage();
   updateCartCount();
 }
@@ -252,6 +264,10 @@ function saveOrderDraft() {
   };
 
   localStorage.setItem("currentOrderDraft", JSON.stringify(draft));
+
+  if (isRegisteredUser()) {
+    saveUserData();
+  }
 }
 
 function loadOrderDraft() {
