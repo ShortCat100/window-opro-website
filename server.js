@@ -4,7 +4,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const { createClient } = require("@supabase/supabase-js");
 const {
-  appendCartSubmissionRows,
+  appendCartSubmissionLog,
   isGoogleSheetsConfigured
 } = require("./lib/googleSheets");
 
@@ -250,7 +250,8 @@ async function saveCartSubmissionsToSupabase(username, cart) {
   return {
     submissionTime,
     rowCount: records.length,
-    records
+    records,
+    user
   };
 }
 
@@ -666,13 +667,19 @@ app.post("/api/submit-cart", upload.array("designFiles"), async (req, res) => {
     }
 
     const savedSubmission = await saveCartSubmissionsToSupabase(username, cart);
+    const uploadedFileNames = (req.files || []).map(file => file.originalname);
 
     // Email submission is pending until SMTP is configured.
 
     let sheetResult = { skipped: true };
 
     try {
-      sheetResult = await appendCartSubmissionRows(savedSubmission.records);
+      sheetResult = await appendCartSubmissionLog({
+        timestamp: savedSubmission.submissionTime,
+        user: savedSubmission.user,
+        cart,
+        uploadedFileNames
+      });
     } catch (sheetError) {
       console.error("Google Sheets error:", sheetError);
 

@@ -1,37 +1,45 @@
-# Google Sheets setup (cart submissions)
+# Google Sheets logging (cart submit)
 
-Spreadsheet: https://docs.google.com/spreadsheets/d/1MJhYdNtHvSzu_L0roTIYoz3jVt28oRBKkFBmeO7txms/edit
+Backend-only. Credentials stay on Render — never in frontend code.
 
-## Row 1 headers (recommended)
-
-| A | B | C | D | E | F | G | H | I | J | K | L | M |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| submission_time | email | full_name | company_name | num_windows | height_inch | width_inch | openings | glass_type | adding | cost | discount | total_cost |
-
-## How rows are added
-
-- Scans from **row 2** downward (row 1 = headers).
-- Finds the **first completely empty row** from the top.
-- Writes all submitted cart lines starting on that row (stacked down).
-- Works after manual edits: the next submit still uses the topmost empty row.
-
-## Server environment variables
+## Render environment variables
 
 ```
-GOOGLE_SHEETS_SPREADSHEET_ID=1MJhYdNtHvSzu_L0roTIYoz3jVt28oRBKkFBmeO7txms
-GOOGLE_SHEETS_SHEET_NAME=Sheet1
-GOOGLE_SHEETS_DATA_START_ROW=2
+GOOGLE_SHEET_ID=1MJhYdNtHvSzu_L0roTIYoz3jVt28oRBKkFBmeO7txms
 GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account@project.iam.gserviceaccount.com
-GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
-## Google Cloud steps
+Optional:
 
-1. Create a project in [Google Cloud Console](https://console.cloud.google.com/).
-2. Enable **Google Sheets API**.
-3. Create a **Service Account** → Keys → JSON key.
-4. Copy `client_email` → `GOOGLE_SERVICE_ACCOUNT_EMAIL`.
-5. Copy `private_key` → `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (keep `\n` line breaks).
-6. Open your Google Sheet → **Share** → add the service account email as **Editor**.
+```
+GOOGLE_SHEET_NAME=Sheet1
+GOOGLE_SHEET_DATA_START_ROW=2
+```
 
-If Sheets env vars are not set, submit still saves to Supabase only.
+## Sheet row 1 headers (recommended)
+
+| A | B | C | D | E | F | G | H | I | J | K |
+|---|---|---|---|---|---|---|---|---|---|---|
+| timestamp | customer name | company | email | phone | quote | tax | discount | total cost | project details JSON | uploaded file names |
+
+## Behavior
+
+After `/api/submit-cart` saves to Supabase, **one row** is written per submit.
+
+- Finds the **first empty row** from row 2 downward (row 1 = headers).
+- Fills that row so manual edits above/below still work on the next submit.
+
+## Google Cloud setup
+
+1. Enable **Google Sheets API** in Google Cloud.
+2. Create a **service account** and JSON key.
+3. Share the spreadsheet with the service account email as **Editor**.
+
+## NPM
+
+```bash
+npm install googleapis
+```
+
+If Sheets env vars are missing, submit still saves to Supabase only.
