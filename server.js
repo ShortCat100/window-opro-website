@@ -10,6 +10,7 @@ const path = require("path");
 
 const BCRYPT_ROUNDS = 10;
 const USERS_TABLE = "users";
+const CART_SUBMISSION_ROWS_TABLE = "cart_submission_rows";
 
 const supabase =
   process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -104,6 +105,148 @@ function mapSupabaseUser(row) {
 
 function isDuplicateUsernameError(error) {
   return error?.code === "23505";
+}
+
+const GLASS_LABELS = {
+  "0": "Clear",
+  "1": "Mist",
+  Rain: "Rain"
+};
+
+const ADDING_LABELS = {
+  "0": "None",
+  "1": "acc 1"
+};
+
+function formatCartSize(number, fraction) {
+  const fractionMap = {
+    "0.125": "1/8",
+    "0.25": "1/4",
+    "0.375": "3/8",
+    "0.5": "1/2",
+    "0.625": "5/8",
+    "0.75": "3/4",
+    "0.875": "7/8"
+  };
+
+  if (!fraction || fraction === "0" || fraction === 0) {
+    return String(number ?? "");
+  }
+
+  const fracStr = fractionMap[String(fraction)] || String(fraction);
+  return `${number}-${fracStr}`;
+}
+
+function displayGlassType(value) {
+  return GLASS_LABELS[value] || value || "";
+}
+
+function displayAdding(value) {
+  return ADDING_LABELS[value] || value || "";
+}
+
+function computeCartOrderTotals(cart) {
+  let totalDiscount = 0;
+  let totalCost = 0;
+
+  cart.forEach(project => {
+    const total = Number(project.total) || 0;
+    const discountQuote = Number(project.discountQuote) || 0;
+
+    if (discountQuote > 0) {
+      totalDiscount += total - discountQuote;
+      totalCost += discountQuote;
+    } else {
+      totalCost += total;
+    }
+  });
+
+  return {
+    discount: Number(totalDiscount.toFixed(2)),
+    totalCost: Number(totalCost.toFixed(2))
+  };
+}
+
+function formatSubmissionTime(date) {
+  const d = date || new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+
+  return `${mm}/${dd}/${yyyy} ${hours}:${minutes}`;
+}
+
+function flattenCartToSubmissionRows(cart, user, submissionTime, orderTotals) {
+  const records = [];
+
+  cart.forEach(project => {
+    const rows = Array.isArray(project.rows) ? project.rows : [];
+    const rowCosts = Array.isArray(project.rowCosts) ? project.rowCosts : [];
+
+    rows.forEach((row, index) => {
+      if (!row.numWindows) {
+        return;
+      }
+
+      records.push({
+        submission_time: submissionTime,
+        email: user.email,
+        full_name: user.full_name,
+        company_name: user.company_name,
+        num_windows: row.numWindows ?? "",
+        height_inch: formatCartSize(row.height, row.heightFraction),
+        width_inch: formatCartSize(row.width, row.widthFraction),
+        openings: row.openings ?? "",
+        glass_type: displayGlassType(row.glassPattern),
+        adding: displayAdding(row.addings),
+        cost: rowCosts[index] || "",
+        discount: orderTotals.discount,
+        total_cost: orderTotals.totalCost
+      });
+    });
+  });
+
+  return records;
+}
+
+async function saveCartSubmissionsToSupabase(username, cart) {
+  if (!supabase) {
+    throw new Error("SUPABASE_NOT_CONFIGURED");
+  }
+
+  const user = await findRegisteredUser(username);
+
+  if (!user) {
+    throw new Error("USER_NOT_FOUND");
+  }
+
+  const submissionTime = formatSubmissionTime(new Date());
+  const orderTotals = computeCartOrderTotals(cart);
+  const records = flattenCartToSubmissionRows(
+    cart,
+    user,
+    submissionTime,
+    orderTotals
+  );
+
+  if (records.length === 0) {
+    throw new Error("NO_CART_ROWS");
+  }
+
+  const { error } = await supabase
+    .from(CART_SUBMISSION_ROWS_TABLE)
+    .insert(records);
+
+  if (error) {
+    throw error;
+  }
+
+  return {
+    submissionTime,
+    rowCount: records.length
+  };
 }
 
 async function findRegisteredUser(username) {
@@ -493,9 +636,36 @@ await transporter.sendMail({
 
 app.post("/api/submit-cart", upload.array("designFiles"), async (req, res) => {
   try {
+    const username = String(req.body.username || "").trim();
     const cart = JSON.parse(req.body.cart || "[]");
+    const uploadedFileNames = (req.files || []).map(file => file.originalname);
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: "User name is required to submit projects."
+      });
+    }
+
+    if (!Array.isArray(cart) || cart.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No projects in cart to submit."
+      });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({
+        success: false,
+        message: "Project submission is temporarily unavailable."
+      });
+    }
+
+    const savedSubmission = await saveCartSubmissionsToSupabase(username, cart);
 
     let emailBody = "New window cart submission\n\n";
+    emailBody += `User Name: ${username}\n`;
+    emailBody += `Submission Time: ${savedSubmission.submissionTime}\n\n`;
 
     cart.forEach((project, index) => {
       emailBody += `PROJECT ${index + 1}\n`;
@@ -533,10 +703,39 @@ app.post("/api/submit-cart", upload.array("designFiles"), async (req, res) => {
       attachments: attachments
     });
 
-    res.json({ success: true });
+    res.json({
+      success: true,
+      submissionTime: savedSubmission.submissionTime,
+      rowCount: savedSubmission.rowCount
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false });
+    console.error("Submit cart error:", error);
+
+    if (error.message === "NO_CART_ROWS") {
+      return res.status(400).json({
+        success: false,
+        message: "No window rows found to submit."
+      });
+    }
+
+    if (error.message === "USER_NOT_FOUND") {
+      return res.status(404).json({
+        success: false,
+        message: "Account not found. Please sign in again."
+      });
+    }
+
+    if (error.message === "SUPABASE_NOT_CONFIGURED") {
+      return res.status(503).json({
+        success: false,
+        message: "Project submission is temporarily unavailable."
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Submission failed. Please try again or contact us directly."
+    });
   }
 });
 

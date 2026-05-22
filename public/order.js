@@ -72,6 +72,15 @@ function makeSelect(className, options) {
   return html;
 }
 
+function getSelectLabel(tableRow, className) {
+  const select = tableRow.querySelector(`.${className}`);
+  if (!select || select.selectedIndex < 0) {
+    return "";
+  }
+
+  return select.options[select.selectedIndex].text;
+}
+
 function collectRows() {
   const rows = [];
   const tableRows = document.querySelectorAll("#windowRows tr");
@@ -90,6 +99,16 @@ function collectRows() {
   });
 
   return rows;
+}
+
+function collectRowsForCart() {
+  const tableRows = document.querySelectorAll("#windowRows tr");
+
+  return collectRows().map((row, index) => ({
+    ...row,
+    glassPattern: getSelectLabel(tableRows[index], "glassPattern"),
+    addings: getSelectLabel(tableRows[index], "addings")
+  }));
 }
 
 async function evaluateQuote() {
@@ -207,7 +226,7 @@ async function saveProjectToCart() {
 
   await evaluateQuote();
 
-  const rows = collectRows();
+  const rows = collectRowsForCart();
   const rowCosts = Array.from(document.querySelectorAll(".row-cost"))
     .map(cell => cell.innerText);
 

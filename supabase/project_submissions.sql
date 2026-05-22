@@ -1,0 +1,2 @@
+-- Deprecated: use cart_submission_rows.sql instead.
+-- See: supabase/cart_submission_rows.sql

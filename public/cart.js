@@ -7,6 +7,25 @@ function formatMoney(value) {
   });
 }
 
+const GLASS_LABELS = {
+  "0": "Clear",
+  "1": "Mist",
+  Rain: "Rain"
+};
+
+const ADDING_LABELS = {
+  "0": "None",
+  "1": "acc 1"
+};
+
+function displayGlassType(value) {
+  return GLASS_LABELS[value] || value || "";
+}
+
+function displayAdding(value) {
+  return ADDING_LABELS[value] || value || "";
+}
+
 function formatSize(number, fraction) {
   if (!fraction || fraction === "0" || fraction === 0) return number;
 
@@ -88,8 +107,8 @@ function loadCart() {
           <td>${formatSize(row.height, row.heightFraction)}</td>
           <td>${formatSize(row.width, row.widthFraction)}</td>
           <td>${row.openings}</td>
-          <td>${row.glassPattern}</td>
-          <td>${row.addings}</td>
+          <td>${displayGlassType(row.glassPattern)}</td>
+          <td>${displayAdding(row.addings)}</td>
           <td>${project.rowCosts[rowIndex] || "$0.00"}</td>
         </tr>
       `;
@@ -192,6 +211,7 @@ async function submitProject() {
     }
 
     const formData = new FormData();
+    formData.append("username", getUsername());
     formData.append("cart", JSON.stringify(cart));
 
     const files = document.getElementById("designFiles").files;
@@ -205,14 +225,18 @@ async function submitProject() {
       body: formData
     });
 
+    const result = await response.json();
+
     if (response.ok) {
-      alert("All projects submitted successfully.");
+      alert(
+        `All projects submitted successfully. ${result.rowCount || 0} row(s) saved.`
+      );
       localStorage.removeItem("windowCart");
       await saveUserData();
       closeSubmitDialog();
       location.reload();
     } else {
-      alert("Submission failed. Please contact us directly.");
+      alert(result.message || "Submission failed. Please contact us directly.");
     }
   } catch (error) {
     console.error(error);
