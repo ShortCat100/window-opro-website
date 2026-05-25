@@ -112,3 +112,31 @@ function closeGuestWelcomeDialog() {
     dialog.style.display = "none";
   }
 }
+
+function openLogoutDialog() {
+  document.getElementById("logoutDialog").style.display = "flex";
+}
+
+function closeLogoutDialog() {
+  document.getElementById("logoutDialog").style.display = "none";
+}
+
+async function confirmLogout() {
+  const wasRegistered = isRegisteredUser();
+
+  localStorage.setItem("windowCart", JSON.stringify([]));
+  localStorage.removeItem("currentOrderDraft");
+
+  if (wasRegistered) {
+    await saveUserData();
+  }
+
+  sessionStorage.removeItem("loggedIn");
+  sessionStorage.removeItem("username");
+  sessionStorage.removeItem("guestMode");
+  sessionStorage.removeItem("showGuestWelcome");
+
+  updateCartCount();
+
+  window.location.href = "index.html";
+}

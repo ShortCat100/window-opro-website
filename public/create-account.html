@@ -27,6 +27,21 @@
   </div>
 </header>
 
+  <div class="account-logout-row">
+    <button class="logout-btn" onclick="openLogoutDialog()">Log Out</button>
+  </div>
+
+  <div id="logoutDialog" class="dialog-overlay">
+    <div class="dialog-box">
+      <p>Log out from current user?</p>
+
+      <div class="dialog-buttons">
+        <button onclick="closeLogoutDialog()">Cancel</button>
+        <button onclick="confirmLogout()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <main class="account-container">
     <h1 id="pageTitle">Create a New Account</h1>
 

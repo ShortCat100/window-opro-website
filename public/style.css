@@ -884,3 +884,18 @@ button {
   font-weight: 700;
   cursor: pointer;
 }
+
+.account-logout-row {
+  width: 90%;
+  margin: 25px auto 0 auto;
+  text-align: right;
+}
+
+.logout-btn {
+  background: white;
+  color: #354055;
+  border: 2px solid #4b8a35;
+  padding: 10px 30px;
+  font-size: 20px;
+  cursor: pointer;
+}
